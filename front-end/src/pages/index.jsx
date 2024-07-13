@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useGeoLocation } from "../hooks/useGeoLocation";
+import sampleData from "../data/sampleData.json";
+import sampleImg from "../data/sampleImg.png";
 
 const Container = styled.div`
   display: flex;
@@ -16,6 +18,10 @@ const MapContainer = styled.div`
 `;
 
 const Main = () => {
+  const [map, setMap] = useState(null);
+  const [data, setData] = useState([]);
+  const { kakao } = window;
+
   const { location: geoLocation, error } = useGeoLocation({
     enableHighAccuracy: true,
     timeout: 1000 * 10,
@@ -25,19 +31,55 @@ const Main = () => {
   const latitude = geoLocation.latitude;
   const longitude = geoLocation.longitude;
 
-  if (latitude && longitude) {
-    const { kakao } = window;
+  useEffect(() => {
+    if (latitude && longitude) {
+      initializeMap(latitude, longitude);
+    }
+  }, [latitude, longitude]);
 
-    var mapContainer = document.getElementById("map"), // 지도를 표시할 div
-      mapOption = {
-        center: new kakao.maps.LatLng(latitude, longitude), // 지도의 중심좌표
-        level: 3, // 지도의 확대 레벨
-        mapTypeId: kakao.maps.MapTypeId.ROADMAP, // 지도종류
-      };
+  useEffect(() => {
+    if (map) {
+      loadMapData();
+    }
+  }, [map]);
 
-    // 지도 생성
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-  }
+  useEffect(() => {
+    if (map && data.length > 0) {
+      displayMarkers();
+    }
+  }, [data]);
+
+  const initializeMap = (lat, lon) => {
+    const mapContainer = document.getElementById("map");
+    const mapOption = {
+      center: new kakao.maps.LatLng(lat, lon),
+      level: 3,
+      mapTypeId: kakao.maps.MapTypeId.ROADMAP,
+    };
+
+    const newMap = new kakao.maps.Map(mapContainer, mapOption);
+    setMap(newMap);
+  };
+
+  const loadMapData = () => {
+    // TODO: 서버에 데이터 요청 로직 추가
+    setData(sampleData);
+  };
+
+  const displayMarkers = () => {
+    data.forEach((item) => {
+      const position = new kakao.maps.LatLng(item.Latitude, item.Longitude);
+      const imageSize = new kakao.maps.Size(24, 35);
+      const markerImage = new kakao.maps.MarkerImage(sampleImg, imageSize);
+
+      new kakao.maps.Marker({
+        map: map,
+        position: position,
+        title: item.세부위치,
+        image: markerImage,
+      });
+    });
+  };
 
   return (
     <Container>
