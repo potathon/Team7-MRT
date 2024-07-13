@@ -1,6 +1,7 @@
 package com.mrt.uhthis.utils;
 
 import com.mrt.uhthis.dto.KakaoMapResponse;
+import com.mrt.uhthis.dto.OpenApiResponse;
 import com.mrt.uhthis.dto.TrashBinResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,23 +32,17 @@ public class KakaoMapApiConverterImpl implements KakaoMapApiConverter {
 
     @Override
     public List<TrashBinResponseDTO> convertAddrToPoint() {
-        return List.of();
-    }
+        List<OpenApiResponse.TrashBinData> trashBinsInfo = openApiConverter.getTrashBinsInfo();
 
-    @Override
-    public List<TrashBinResponseDTO> convertAddrToPoint(List<TrashBinResponseDTO> trashBinsInfo) {
-//        List<TrashBinResponseDTO> trashBinsInfo = openApiConverter.getTrashBinsInfo();
-//
         if (trashBinsInfo == null || trashBinsInfo.isEmpty())
             throw new IllegalStateException("공공데이터가 존재하지 않습니다.");
 
-        for (TrashBinResponseDTO trashBin : trashBinsInfo) {
-            String address = trashBin.getAddress();
-
+        List<TrashBinResponseDTO> trashBinResponseDTOList = new ArrayList<>();
+        for (OpenApiResponse.TrashBinData trashBin : trashBinsInfo) {
             KakaoMapResponse response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/v2/local/search/keyword")
-                            .queryParam("query", address)
+                            .queryParam("query", trashBin.getAddress())
                             .queryParam("size", 1)
                             .build())
                     .header("Authorization", "KakaoAK " + apiKey)
@@ -58,10 +54,18 @@ public class KakaoMapApiConverterImpl implements KakaoMapApiConverter {
                 throw new IllegalStateException("카카오맵 데이터가 존재하지 않습니다.");
 
             KakaoMapResponse.Document document = response.getDocuments().get(0);
-            trashBin.setLongitude(Double.parseDouble(document.getX()));
-            trashBin.setLatitude(Double.parseDouble(document.getY()));
+
+            TrashBinResponseDTO responseDTO = TrashBinResponseDTO.builder()
+                    .address(trashBin.getAddress())
+                    .description(trashBin.getDescription())
+                    .longitude(Double.parseDouble(document.getX()))
+                    .latitude(Double.parseDouble(document.getY()))
+                    .binType(trashBin.getBinType())
+                    .build();
+
+            trashBinResponseDTOList.add(responseDTO);
         }
 
-        return trashBinsInfo;
+        return trashBinResponseDTOList;
     }
 }
