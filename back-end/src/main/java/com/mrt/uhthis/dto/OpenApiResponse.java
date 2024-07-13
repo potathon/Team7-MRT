@@ -13,6 +13,7 @@ import java.util.List;
 public class OpenApiResponse {
     private List<TrashBinData> data;
 
+    private int totalCount;
     @Getter
     @ToString
     @NoArgsConstructor
