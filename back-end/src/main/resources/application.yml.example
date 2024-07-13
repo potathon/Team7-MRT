@@ -18,3 +18,7 @@ spring:
 
 kakao:
   api-key: yourApiKey
+
+openapi:
+  url: sample
+  key: sample

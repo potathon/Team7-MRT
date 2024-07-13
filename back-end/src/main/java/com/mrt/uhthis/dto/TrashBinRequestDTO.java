@@ -14,5 +14,5 @@ public class TrashBinRequestDTO {
     @NotNull
     private double longitude;
 
-    private double radius;
+    private double radius; // 1미터 단위
 }

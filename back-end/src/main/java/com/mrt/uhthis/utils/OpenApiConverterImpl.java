@@ -2,6 +2,7 @@ package com.mrt.uhthis.utils;
 
 import com.mrt.uhthis.dto.OpenApiResponse;
 import com.mrt.uhthis.dto.OpenApiResponse.TrashBinData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+@Slf4j
 @Component
 public class OpenApiConverterImpl implements OpenApiConverter {
 
