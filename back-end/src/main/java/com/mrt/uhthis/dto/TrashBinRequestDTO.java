@@ -14,5 +14,5 @@ public class TrashBinRequestDTO {
     @NotNull
     private double longitude;
 
-    private Double radius;
+    private double radius;
 }

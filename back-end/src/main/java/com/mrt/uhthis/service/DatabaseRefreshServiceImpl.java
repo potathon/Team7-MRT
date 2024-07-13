@@ -23,8 +23,18 @@ public class DatabaseRefreshServiceImpl implements DatabaseRefreshService {
     public void refreshDatabase() {
         List<TrashBinResponseDTO> trashBinsInfo = kakaoMapApiConverter.convertAddrToPoint();
 
+        for (TrashBinResponseDTO trashBinResponseDTO : trashBinsInfo) {
+            trashBinRepository.save(TrashBin.builder()
+                    .address(trashBinResponseDTO.getAddress())
+                    .binType(trashBinResponseDTO.getBinType())
+                    .description(trashBinResponseDTO.getDescription())
+                    .longitude(trashBinResponseDTO.getLongitude())
+                    .latitude(trashBinResponseDTO.getLatitude())
+                    .build());
+        }
     }
 
+    @Transactional
     public List<TrashBinResponseDTO> getNearbyTrashBins (TrashBinRequestDTO requestDTO) {
         Double lat = requestDTO.getLatitude();
         Double lon = requestDTO.getLongitude();
