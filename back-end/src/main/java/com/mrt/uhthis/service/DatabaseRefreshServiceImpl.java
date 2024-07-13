@@ -1,6 +1,7 @@
 package com.mrt.uhthis.service;
 
 import com.mrt.uhthis.dto.TrashBinResponseDTO;
+import com.mrt.uhthis.entity.TrashBin;
 import com.mrt.uhthis.repository.TrashBinRepository;
 import com.mrt.uhthis.utils.KakaoMapApiConverter;
 import jakarta.transaction.Transactional;
@@ -21,5 +22,14 @@ public class DatabaseRefreshServiceImpl implements DatabaseRefreshService {
     public void refreshDatabase() {
         List<TrashBinResponseDTO> trashBinsInfo = kakaoMapApiConverter.convertAddrToPoint();
 
+    }
+
+    public List<TrashBin> getNearbyTrashBins (Double lat, Double lon, Double radius) {
+        Double latMin = lat - radius;
+        Double latMax = lat + radius;
+        Double lonMin = lon - radius;
+        Double lonMax = lon + radius;
+
+        return trashBinRepository.findByLatitudeBetweenAndLongitudeBetween(latMin, latMax, lonMin, lonMax);
     }
 }
