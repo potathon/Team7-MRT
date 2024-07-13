@@ -1,43 +1,63 @@
 package com.mrt.uhthis.utils;
 
-import com.mrt.uhthis.dto.TrashBinResponseDTO;
-import org.springframework.stereotype.Component;
+import com.mrt.uhthis.dto.OpenApiResponse;
+import com.mrt.uhthis.dto.OpenApiResponse.TrashBinData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.http.client.reactive.ClientHttpConnector;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
+@Slf4j
 @Component
 public class OpenApiConverterImpl implements OpenApiConverter {
 
     private final WebClient webClient;
-    private final String apiUrl = "https://infuser.odcloud.kr/oas/docs?namespace=15096706/v1";
-    private final String apiKey = "S08Fw9PW%2FIG0liH%2BLDMp0U7zUV2iBhAy15%2BuPycbKuy23sip0h%2BBBb22CwjefKhoLIpfG7hbRRFYn3Zr03RsWA%3D%3D";
+    private final String apiUrl;
+    private final String apiKey;
 
-
-    public OpenApiConverterImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(apiUrl).build();
+    public OpenApiConverterImpl(WebClient.Builder webClientBuilder, ClientHttpConnector clientHttpConnector,
+                                @Value("${openapi.url}") String apiUrl,
+                                @Value("${openapi.key}") String apiKey) {
+        this.webClient = webClientBuilder
+                .baseUrl(apiUrl)
+                .clientConnector(clientHttpConnector)
+                .build();
+        this.apiUrl = apiUrl;
+        this.apiKey = apiKey;
     }
-//    public OpenApiConverterImpl(WebClient.Builder webClientBuilder,
-//                                @Value("${openapi.url}") String apiUrl,
-//                                @Value("${openapi.key}") String apiKey) {
-//        this.webClient = webClientBuilder.baseUrl(apiUrl).build();
-////        this.apiUrl = apiUrl; TODO: applicaiton.yml에 apiurl, apikey추가되면 주석해제
-////        this.apiKey = apiKey;
-//    }
 
     @Override
-    public List<TrashBinResponseDTO> getTrashBinsInfo() {
-        Flux<TrashBinResponseDTO> responseFlux = this.webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .queryParam("serviceKey", apiKey)
-                        .queryParam("page", 2)
-                        .queryParam("perPage", 10)
-                        .build())
-                .retrieve()
-                .bodyToFlux(TrashBinResponseDTO.class);
+    public List<TrashBinData> getTrashBinsInfo() {
+        OpenApiResponse initialResponse;
+        try {
+            // 첫 번째 요청
+            initialResponse = this.webClient.get()
+                    .uri(new URI(apiUrl + "?serviceKey=" + apiKey + "&page=1&perPage=10"))
+                    .retrieve()
+                    .bodyToMono(OpenApiResponse.class)
+                    .block();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
-        return responseFlux.collectList().block();
+        int totalCount = initialResponse.getTotalCount();
+        OpenApiResponse finalResponse;
+        try {
+            // 두 번째 요청
+            finalResponse = this.webClient.get()
+                    .uri(new URI(apiUrl + "?serviceKey=" + apiKey + "&page=1&perPage=" + totalCount))
+                    .retrieve()
+                    .bodyToMono(OpenApiResponse.class)
+                    .block();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        return finalResponse.getData();
     }
 }

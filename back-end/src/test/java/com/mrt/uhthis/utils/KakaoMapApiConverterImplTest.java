@@ -19,12 +19,7 @@ class KakaoMapApiConverterImplTest {
 
     @Test
     void convertAddrToPoint() {
-        List<TrashBinResponseDTO> dto = new ArrayList<>();
-        dto.add(TrashBinResponseDTO.builder()
-                .address("올림픽로 99")
-                .build());
-
-        List<TrashBinResponseDTO> list = kakaoMapApiConverter.convertAddrToPoint(dto);
+        List<TrashBinResponseDTO> list = kakaoMapApiConverter.convertAddrToPoint();
 
         Assertions.assertThat(list).isNotNull();
         Assertions.assertThat(list).isNotEmpty();
