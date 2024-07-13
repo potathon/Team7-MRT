@@ -37,4 +37,10 @@ public class TrashBinController {
         }
     }
 
+    @GetMapping("/refresh")
+    public String refresh(){
+        databaseRefreshService.refreshDatabase();
+        return "ok";
+    }
+
 }

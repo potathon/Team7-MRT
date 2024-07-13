@@ -53,17 +53,19 @@ public class KakaoMapApiConverterImpl implements KakaoMapApiConverter {
             if (response == null || response.getDocuments() == null)
                 throw new IllegalStateException("카카오맵 데이터가 존재하지 않습니다.");
 
-            KakaoMapResponse.Document document = response.getDocuments().get(0);
+            if (!response.getDocuments().isEmpty()) {
+                KakaoMapResponse.Document document = response.getDocuments().get(0);
 
-            TrashBinResponseDTO responseDTO = TrashBinResponseDTO.builder()
-                    .address(trashBin.getAddress())
-                    .description(trashBin.getDescription())
-                    .longitude(Double.parseDouble(document.getX()))
-                    .latitude(Double.parseDouble(document.getY()))
-                    .binType(trashBin.getBinType())
-                    .build();
+                TrashBinResponseDTO responseDTO = TrashBinResponseDTO.builder()
+                        .address(trashBin.getAddress())
+                        .description(trashBin.getDescription())
+                        .longitude(Double.parseDouble(document.getX()))
+                        .latitude(Double.parseDouble(document.getY()))
+                        .binType(trashBin.getBinType().substring(2))
+                        .build();
 
-            trashBinResponseDTOList.add(responseDTO);
+                trashBinResponseDTOList.add(responseDTO);
+            }
         }
 
         return trashBinResponseDTOList;
