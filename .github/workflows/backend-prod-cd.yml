@@ -55,8 +55,8 @@ jobs:
       - name: Docker 이미지 빌드 및 푸시
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./back-end
+          file: ./back-end/Dockerfile
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ secrets.IMAGE_TAG }}
