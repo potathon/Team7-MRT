@@ -7,4 +7,6 @@ import java.util.List;
 public interface KakaoMapApiConverter {
 
     List<TrashBinResponseDTO> convertAddrToPoint();
+
+    List<TrashBinResponseDTO> convertAddrToPoint(List<TrashBinResponseDTO> list);
 }
