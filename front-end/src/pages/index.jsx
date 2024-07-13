@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useGeoLocation } from "../hooks/useGeoLocation";
-import sampleData from "../data/sampleData.json";
 import sampleImg from "../data/sampleImg.png";
 import { PanToButton } from "../components/PanToButton";
 import CategoryButton from "../components/CategoryButton";
+import { postTrashBin } from "../api/trashBin/postTrashBin";
 
 const Container = styled.div`
   display: flex;
@@ -42,8 +42,8 @@ const Main = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const categories = [
     { category: "all", name: "전체 보기" },
-    { category: "normal", name: "① 일반쓰레기" },
-    { category: "recycle", name: "② 재활용쓰레기" },
+    { category: "normal", name: "일반쓰레기" },
+    { category: "recycle", name: "재활용쓰레기" },
   ];
 
   const { location: geoLocation, error } = useGeoLocation({
@@ -63,7 +63,9 @@ const Main = () => {
 
   useEffect(() => {
     if (map) {
-      loadMapData(selectedCategory);
+      (async () => {
+        await loadMapData(selectedCategory);
+      })();
     }
   }, [map, selectedCategory]);
 
@@ -85,15 +87,19 @@ const Main = () => {
     setMap(newMap);
   };
 
-  const loadMapData = (name) => {
-    // TODO: 서버에 데이터 요청 로직 추가
-    let filteredData = sampleData;
+  const loadMapData = async (name) => {
+    let filteredData = await postTrashBin({
+      latitude: 37.5113,
+      longitude: 127.1052,
+      radius: 1000, // 임시
+    });
 
     if (name !== "all") {
       const category = categories.find((item) => item.category === name);
-      filteredData = sampleData.filter((item) => item.종류 === category.name);
+      filteredData = filteredData.filter(
+        (item) => item.binType === category.name,
+      );
     }
-
     setData(filteredData);
   };
 
@@ -105,14 +111,14 @@ const Main = () => {
 
     // 새로운 마커 추가
     data.forEach((item) => {
-      const position = new kakao.maps.LatLng(item.Latitude, item.Longitude);
+      const position = new kakao.maps.LatLng(item.latitude, item.longitude);
       const imageSize = new kakao.maps.Size(24, 35);
       const markerImage = new kakao.maps.MarkerImage(sampleImg, imageSize);
 
       const marker = new kakao.maps.Marker({
         map: map,
         position: position,
-        title: item.세부위치,
+        title: item.description,
         image: markerImage,
       });
 
@@ -122,7 +128,7 @@ const Main = () => {
 
   return (
     <Container>
-      <MapContainer id="map"></MapContainer>
+      <MapContainer id='map'></MapContainer>
       <CategoryButtonsWrapper>
         {categories.map((item) => {
           return (
