@@ -1,5 +1,6 @@
 package com.mrt.uhthis.service;
 
+import com.mrt.uhthis.dto.TrashBinRequestDTO;
 import com.mrt.uhthis.dto.TrashBinResponseDTO;
 import com.mrt.uhthis.entity.TrashBin;
 import com.mrt.uhthis.repository.TrashBinRepository;
@@ -24,12 +25,20 @@ public class DatabaseRefreshServiceImpl implements DatabaseRefreshService {
 
     }
 
-    public List<TrashBin> getNearbyTrashBins (Double lat, Double lon, Double radius) {
+    public List<TrashBinResponseDTO> getNearbyTrashBins (TrashBinRequestDTO requestDTO) {
+        Double lat = requestDTO.getLatitude();
+        Double lon = requestDTO.getLongitude();
+        Double radius = requestDTO.getRadius();
+
         Double latMin = lat - radius;
         Double latMax = lat + radius;
         Double lonMin = lon - radius;
         Double lonMax = lon + radius;
 
-        return trashBinRepository.findByLatitudeBetweenAndLongitudeBetween(latMin, latMax, lonMin, lonMax);
+        List<TrashBin> trashBins = trashBinRepository.findByLatitudeBetweenAndLongitudeBetween(latMin, latMax, lonMin, lonMax);
+
+        return trashBins.stream()
+                .map(TrashBin::toResponseDTO)
+                .toList();
     }
 }
