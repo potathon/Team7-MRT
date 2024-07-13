@@ -32,6 +32,7 @@ jobs:
       - name: Gradle 을 통해 빌드
         uses: gradle/gradle-build-action@v2.6.0
         with:
+          gradle-version: 8.8
           arguments: bootJar
 
       - name: Docker 빌드 도구 설정
