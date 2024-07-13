@@ -1,5 +1,6 @@
 package com.mrt.uhthis.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,9 +8,11 @@ import lombok.Data;
 @Builder
 public class TrashBinRequestDTO {
 
+    @NotNull
     private double latitude;
 
+    @NotNull
     private double longitude;
 
-    private Double radius;
+    private double radius;
 }

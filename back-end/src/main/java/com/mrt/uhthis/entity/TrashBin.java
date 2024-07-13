@@ -1,5 +1,6 @@
 package com.mrt.uhthis.entity;
 
+import com.mrt.uhthis.dto.TrashBinResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,4 +26,16 @@ public class TrashBin {
 
     @Column(name = "bin_type")
     private String binType;
+
+    // toResponseDto: 엔티티를 responseDto로 만들겠다
+    public TrashBinResponseDTO toResponseDTO() {
+        return TrashBinResponseDTO.builder()
+                .id(this.id)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .address(this.address)
+                .description(this.description)
+                .binType(this.binType)
+                .build();
+    }
 }
