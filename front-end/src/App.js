@@ -1,5 +1,15 @@
+import React from "react";
+import { Global } from "@emotion/react";
+import { reset } from "./styles/reset";
+import Main from "./pages";
+
 function App() {
-  return <div className="App">initial status</div>;
+  return (
+    <>
+      <Global styles={reset} />
+      <Main />
+    </>
+  );
 }
 
 export default App;
