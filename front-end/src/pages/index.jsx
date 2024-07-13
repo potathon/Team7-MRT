@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useGeoLocation } from "../hooks/useGeoLocation";
 import sampleData from "../data/sampleData.json";
 import sampleImg from "../data/sampleImg.png";
+import { PanToButton } from "../components/PanToButton";
 
 const Container = styled.div`
   display: flex;
@@ -83,7 +84,8 @@ const Main = () => {
 
   return (
     <Container>
-      <MapContainer id="map"></MapContainer>
+      <MapContainer id='map'></MapContainer>
+      <PanToButton map={map} kakao={kakao} lat={latitude} lng={longitude} />
       {error && <p>Error: {error}</p>}
     </Container>
   );
