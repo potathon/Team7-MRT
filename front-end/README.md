@@ -1,7 +1,7 @@
 ### Install dependencies
 
 ```bash
-npm install @emotion/react
+yarn install
 ```
 
 ### Run the app
